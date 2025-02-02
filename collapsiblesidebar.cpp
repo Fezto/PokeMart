@@ -16,7 +16,6 @@ CollapsibleSidebar::CollapsibleSidebar(QWidget *parent, int expandedWidth, int c
 
     // Creamos el layout vertical.
     m_layout = new QVBoxLayout(this);
-    m_layout->setContentsMargins(5, 5, 5, 5);
     m_layout->setSpacing(10);
 
     // Botón para colapsar/expandir.

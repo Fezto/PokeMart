@@ -16,6 +16,7 @@ qt_add_executable(Prueba2
     collapsiblesidebar.h collapsiblesidebar.cpp
     resources.qrc
     productcard.h productcard.cpp
+    flowlayout.h flowlayout.cpp
 
 )
 

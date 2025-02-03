@@ -3,6 +3,8 @@
 #include "collapsiblesidebar.h"
 #include "productcard.h"
 #include "flowlayout.h"
+#include "logindialog.h"
+#include "databasemanager.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -22,32 +24,19 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    /* --- DBConnection --- */
-    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
-    db.setHostName("localhost");
-    db.setDatabaseName("pokemart");
-    db.setUserName("root");
-    db.setPassword("Spongebob400!");
-    bool ok = db.open();
-
-    if(ok){
-        qDebug() << "¡Conexión exitosa!";
-    }
-    else {
-        qDebug() << "Algo a salido mal al intentar la conexión a la base de datos";
-    }
-
     // Crear widget central y asignarlo
     QWidget *centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
 
+
+
+    /* --- Database connection --- */
+    DatabaseManager::instance().connect();
+
+
     /* --- CollapsibleSideBar --- */
 
-    // Instanciar nuestro sidebar colapsable
     CollapsibleSidebar *sidebar = new CollapsibleSidebar(centralWidget, 120, 15);
-
-
-    // Agregar algunos botones de ejemplo al sidebar
 
     QSqlTableModel ProductCategory;
     ProductCategory.setTable("Product_Category");
@@ -55,38 +44,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     for (int i = 0; i < ProductCategory.rowCount(); ++i) {
         QSqlRecord record = ProductCategory.record(i);
-
-        // Crear el botón
-        QToolButton *btnInicio = new QToolButton;
-        btnInicio->setCheckable(true);
-
-        // Crear un layout vertical (QVBoxLayout) para organizar el icono y el texto
-        QVBoxLayout *layout = new QVBoxLayout;
-        layout->setAlignment(Qt::AlignCenter);  // Asegura que los elementos estén centrados
-
-        // Crear un widget contenedor para el layout
-        QWidget *container = new QWidget;
-        container->setLayout(layout);
-
-        // Agregar el icono y el texto al layout
-        QLabel *iconLabel = new QLabel;
-        iconLabel->setPixmap(QIcon(":/icons/manzana.png").pixmap(61, 61));  // Usar un QLabel para el icono
-        layout->addWidget(iconLabel);
-
-        QLabel *textLabel = new QLabel(record.value("name").toString());
-        textLabel->setAlignment(Qt::AlignCenter);  // Asegura que el texto esté centrado
-        layout->addWidget(textLabel);
-
-        // Establecer el contenedor como widget del botón
-        btnInicio->setLayout(layout);
-
-        // Hacer que el botón ocupe todo el espacio disponible
-        btnInicio->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-        // Agregar el botón al sidebar
-        sidebar->addWidget(btnInicio);
+        QString categoryName = record.value("name").toString();
+        QIcon categoryIcon = QIcon(":/icons/manzana.png");
+        sidebar->addCategoryButton(categoryName, categoryIcon, QSize(61, 61));
     }
-
 
 
     /* --- ProductContainer (Panel de productos) --- */
@@ -94,7 +55,6 @@ MainWindow::MainWindow(QWidget *parent)
     // Panel principal que contendrá los botones y las tarjetas
     QWidget *panel = new QWidget();
     panel->setStyleSheet("background-color: #454b5a;");
-
     panel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     // Layout principal del panel (vertical)
@@ -106,28 +66,24 @@ MainWindow::MainWindow(QWidget *parent)
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->setAlignment(Qt::AlignRight);
 
-    QPushButton *btnFiltrar = new QPushButton("Filtrar");
-    QPushButton *btnOrdenar = new QPushButton("Ordenar");
+    QPushButton *btnLogin = new QPushButton("Login");
+    QPushButton *btnRegister = new QPushButton("Register");
 
-    // Estilo para los botones
-    QString buttonStyle =
-        "QPushButton {"
-        "   background-color: #4CAF50;"
-        "   color: white;"
-        "   border: none;"
-        "   padding: 8px 16px;"
-        "   border-radius: 4px;"
-        "}"
-        "QPushButton:hover { background-color: #45a049; }";
+    // Estilo oscuro con bordes sutiles y efectos al pasar el mouse
 
-    btnFiltrar->setStyleSheet(buttonStyle);
-    btnOrdenar->setStyleSheet(buttonStyle);
+    buttonLayout->addWidget(btnLogin);
+    buttonLayout->addWidget(btnRegister);
 
-    buttonLayout->addWidget(btnFiltrar);
-    buttonLayout->addWidget(btnOrdenar);
+    connect(btnLogin, &QPushButton::clicked, this, [this](){
+        LoginDialog dialog(this);
+        if (dialog.exec() == QDialog::Accepted) {
+            qDebug() << "Login successful!";
+        }
+    });
 
     // Agregar botones al panel
     panelLayout->addLayout(buttonLayout);
+
 
     // --- Contenedor de tarjetas ---
     QWidget *cardsContainer = new QWidget();

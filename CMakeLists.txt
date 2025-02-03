@@ -17,6 +17,9 @@ qt_add_executable(Prueba2
     resources.qrc
     productcard.h productcard.cpp
     flowlayout.h flowlayout.cpp
+    logindialog.h logindialog.cpp
+    databasemanager.h databasemanager.cpp
+    paymentdialog.h paymentdialog.cpp
 
 )
 

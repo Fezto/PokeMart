@@ -2,6 +2,9 @@
 #define COLLAPSIBLESIDEBAR_H
 
 #include <QFrame>
+#include <QString>
+#include <QPixmap>
+#include <QSize>
 
 class QPushButton;
 class QVBoxLayout;
@@ -21,6 +24,8 @@ public:
 
     /// Permite agregar widgets al layout interno del sidebar.
     void addWidget(QWidget *widget);
+
+    void addCategoryButton(QString categoryLabel, QIcon categoryIcon, QSize iconSize );
 
     /// Agrega un stretch al layout interno (útil para alinear elementos).
     void addStretch(int stretch = 1);

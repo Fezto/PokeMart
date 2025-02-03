@@ -4,6 +4,8 @@
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
 #include <QEasingCurve>
+#include <QToolButton>
+#include <QLabel>
 
 CollapsibleSidebar::CollapsibleSidebar(QWidget *parent, int expandedWidth, int collapsedWidth)
     : QFrame(parent),
@@ -31,6 +33,38 @@ CollapsibleSidebar::CollapsibleSidebar(QWidget *parent, int expandedWidth, int c
 void CollapsibleSidebar::addWidget(QWidget *widget)
 {
     m_layout->addWidget(widget);
+}
+
+void CollapsibleSidebar::addCategoryButton(QString categoryLabel, QIcon categoryIcon, QSize iconSize)
+{
+    QToolButton *categoryButton = new QToolButton;
+    categoryButton->setCheckable(true);
+
+    // Crear un layout vertical (QVBoxLayout) para organizar el icono y el texto
+    QVBoxLayout *buttonLayout = new QVBoxLayout;
+    buttonLayout->setAlignment(Qt::AlignCenter);  // Asegura que los elementos estén centrados
+
+    // Crear un widget contenedor para el layout
+    QWidget *container = new QWidget;
+    container->setLayout(buttonLayout);
+
+    // Agregar el icono y el texto al layout
+    QLabel *iconLabel = new QLabel;
+    iconLabel->setPixmap(categoryIcon.pixmap(iconSize));  // Usar un QLabel para el icono
+    buttonLayout->addWidget(iconLabel);
+
+    QLabel *textLabel = new QLabel(categoryLabel);
+    textLabel->setAlignment(Qt::AlignCenter);  // Asegura que el texto esté centrado
+    buttonLayout->addWidget(textLabel);
+
+    // Establecer el contenedor como widget del botón
+    categoryButton->setLayout(buttonLayout);
+
+    // Hacer que el botón ocupe todo el espacio disponible
+    categoryButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    // Agregar el botón al sidebar
+    addWidget(categoryButton);
 }
 
 void CollapsibleSidebar::addStretch(int stretch)

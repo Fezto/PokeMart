@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>icons/manzana.png</file>
         <file>icons/pina.png</file>
+        <file>styles/style.qss</file>
     </qresource>
 </RCC>

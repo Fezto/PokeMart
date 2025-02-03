@@ -1,5 +1,4 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 #include "collapsiblesidebar.h"
 #include "productcard.h"
 #include "flowlayout.h"
@@ -20,15 +19,10 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);
-
     // Crear widget central y asignarlo
     QWidget *centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
-
-
 
     /* --- Database connection --- */
     DatabaseManager::instance().connect();
@@ -54,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Panel principal que contendrá los botones y las tarjetas
     QWidget *panel = new QWidget();
-    panel->setStyleSheet("background-color: #454b5a;");
+    panel->setObjectName("panel");
     panel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     // Layout principal del panel (vertical)
@@ -121,5 +115,5 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+
 }

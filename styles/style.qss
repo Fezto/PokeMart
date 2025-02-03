@@ -1,0 +1,88 @@
+/* --- Global Styles --- */
+
+QPushButton {
+    background-color: #5A5F73;
+    color: white;
+    border: 1px solid #767B91;
+    padding: 8px 16px;
+    border-radius: 4px;
+}
+
+QPushButton:hover {
+    background-color: #6C7187;
+}
+
+QLineEdit, QDateEdit {
+    padding: 8px;
+    border: 1px solid #767B91;
+    border-radius: 5px;
+    background-color: #5A5F73;
+    color: white;
+}
+
+QComboBox {
+    padding: 8px;
+    border: 1px solid #767B91;
+    border-radius: 5px;
+    background-color: #5A5F73;
+    color: white;
+}
+
+QComboBox::drop-down {
+    border: none;
+    background-color: #5A5F73;
+}
+
+QComboBox::down-arrow {
+    border: none;
+    image: url(:/icons/arrow-down.png);
+
+}
+
+QGroupBox {
+    color: white;
+    border: 2px solid #767B91;
+    border-radius: 8px;
+    margin-top: 10px;
+    padding: 10px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 5px;
+}
+
+QLabel {
+    color: white;
+    font-size: 12px;
+}
+
+
+
+/* Espaciado adicional dentro del QGroupBox */
+QGroupBox QLineEdit, QGroupBox QDateEdit, QGroupBox QComboBox, QGroupBox QPushButton {
+    margin-bottom: 10px;  /* Espacio entre los elementos */
+}
+
+/* Padding interno en los elementos dentro del QGroupBox */
+QGroupBox QLineEdit, QGroupBox QDateEdit, QGroupBox QComboBox, QGroupBox QPushButton {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+/* Estilo del panel y el producto */
+QWidget#panel {
+    background-color: #454b5a;
+}
+
+QFrame#productCard {
+    background-color: #363c4b;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 15px;
+}
+
+QFrame#productCard * {
+    margin: 5px;
+}

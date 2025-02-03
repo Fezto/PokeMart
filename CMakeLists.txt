@@ -12,7 +12,7 @@ qt_add_executable(Prueba2
     main.cpp
     mainwindow.cpp
     mainwindow.h
-    mainwindow.ui
+
     collapsiblesidebar.h collapsiblesidebar.cpp
     resources.qrc
     productcard.h productcard.cpp

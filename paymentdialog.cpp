@@ -1,6 +1,13 @@
 #include "paymentdialog.h"
-#include <QGridLayout>
-#include <QFile>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QComboBox>
+#include <QLineEdit>
+#include <QLabel>
+#include <QPushButton>
+#include <QGroupBox>
+#include <QDateEdit>
+#include <QMessageBox>
 
 PaymentDialog::PaymentDialog(const QString& productName,
                              double price,
@@ -11,109 +18,56 @@ PaymentDialog::PaymentDialog(const QString& productName,
     currentProductPrice(price),
     currentProductImage(imagePath)
 {
-    setupUI();
-}
-
-void PaymentDialog::setupUI() {
     setWindowTitle("Payment Details");
     setFixedSize(1000, 600);
 
+    // Main Layout
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
     mainLayout->setContentsMargins(20, 20, 20, 20);
     mainLayout->setSpacing(30);
 
     // Product Section (Left)
-    setupProductSection();
-    mainLayout->addWidget(productSection, 40); // 40% width
-
-    // Payment Section (Right)
-    setupPaymentSection();
-    mainLayout->addWidget(paymentSection, 60); // 60% width
-}
-
-void PaymentDialog::setupProductSection() {
-    productSection = new QWidget();
-    productSection->setStyleSheet(
-        "background-color: #454b5a;"
-        "border-radius: 10px;"
-        "padding: 20px;"
-        );
-
+    QWidget *productSection = new QWidget();
+    productSection->setStyleSheet("background-color: #454b5a; border-radius: 10px; padding: 20px;");
     QVBoxLayout *productLayout = new QVBoxLayout(productSection);
 
-    // Product Image
-    productImage = new QLabel();
+    QLabel *productImage = new QLabel();
     productImage->setPixmap(QPixmap(currentProductImage).scaled(200, 200, Qt::KeepAspectRatio));
     productImage->setAlignment(Qt::AlignCenter);
     productImage->setStyleSheet("border: 2px solid #767B91; border-radius: 10px;");
 
-    // Product Name
-    productNameLabel = new QLabel(currentProductName);
-    productNameLabel->setStyleSheet(
-        "color: white;"
-        "font-size: 20px;"
-        "font-weight: bold;"
-        "margin-top: 15px;"
-        );
+    QLabel *productNameLabel = new QLabel(currentProductName);
+    productNameLabel->setStyleSheet("color: white; font-size: 20px; font-weight: bold; margin-top: 15px;");
 
-    // Product Price
-    productPriceLabel = new QLabel(QString("$%1").arg(currentProductPrice, 0, 'f', 2));
-    productPriceLabel->setStyleSheet(
-        "color: #4CAF50;"
-        "font-size: 24px;"
-        "margin-top: 10px;"
-        );
+    QLabel *productPriceLabel = new QLabel(QString("$%1").arg(currentProductPrice, 0, 'f', 2));
+    productPriceLabel->setStyleSheet("color: #4CAF50; font-size: 24px; margin-top: 10px;");
 
     productLayout->addWidget(productImage);
     productLayout->addWidget(productNameLabel);
     productLayout->addWidget(productPriceLabel);
     productLayout->addStretch();
-}
 
-void PaymentDialog::setupPaymentSection() {
-    paymentSection = new QWidget();
+    mainLayout->addWidget(productSection, 40);  // 40% width
+
+    // Payment Section (Right)
+    QWidget *paymentSection = new QWidget();
     QVBoxLayout *paymentLayout = new QVBoxLayout(paymentSection);
 
-    // Payment Method Selection
+    // Payment Method
     QLabel *methodLabel = new QLabel("Select Payment Method:");
-    methodLabel->setStyleSheet("color: white; font-size: 16px;");
-
-    paymentMethodCombo = new QComboBox();
+    QComboBox *paymentMethodCombo = new QComboBox();
     paymentMethodCombo->addItem("💳 Credit/Debit Card");
     paymentMethodCombo->addItem("🏦 Bank Transfer");
-    paymentMethodCombo->setStyleSheet(
-        "QComboBox {"
-        "   padding: 8px;"
-        "   border-radius: 5px;"
-        "   background-color: #5A5F73;"
-        "   color: white;"
-        "}"
-        "QComboBox::drop-down { border: none; }"
-        );
 
-    // Card Details
+    // Card Information
     QGroupBox *cardGroup = new QGroupBox("Card Information");
-    cardGroup->setStyleSheet(
-        "QGroupBox {"
-        "   color: white;"
-        "   border: 1px solid #767B91;"
-        "   border-radius: 8px;"
-        "   margin-top: 10px;"
-        "}"
-        "QGroupBox::title { subcontrol-origin: margin; left: 10px; }"
-        );
-
     QGridLayout *cardLayout = new QGridLayout(cardGroup);
-    cardLayout->setContentsMargins(15, 25, 15, 15);
-    cardLayout->setVerticalSpacing(12);
 
-    cardNumberEdit = new QLineEdit();
-    cvvEdit = new QLineEdit();
-    expirationDateEdit = new QDateEdit();
+    QLineEdit *cardNumberEdit = new QLineEdit();
+    QLineEdit *cvvEdit = new QLineEdit();
+    QDateEdit *expirationDateEdit = new QDateEdit();
     expirationDateEdit->setCalendarPopup(true);
     expirationDateEdit->setDisplayFormat("MM/yyyy");
-
-
 
     cardNumberEdit->setPlaceholderText("1234 5678 9012 3456");
     cvvEdit->setPlaceholderText("123");
@@ -125,27 +79,26 @@ void PaymentDialog::setupPaymentSection() {
     cardLayout->addWidget(new QLabel("CVV:"), 2, 0);
     cardLayout->addWidget(cvvEdit, 2, 1);
 
-    // Bank Transfer Details
-    accountNumberEdit = new QLineEdit();
-    accountNumberEdit->setPlaceholderText("Enter account number");
+    // Bank Transfer Info
+    QGroupBox *transferGroup = new QGroupBox("Bank Transfer Information");
+    QVBoxLayout *transferLayout = new QVBoxLayout(transferGroup);
 
-    accountNumberEdit->hide();
+    QLineEdit *accountNumberEdit = new QLineEdit();
+    accountNumberEdit->setPlaceholderText("Enter account number");
+    QLineEdit *bankNameEdit = new QLineEdit();
+    bankNameEdit->setPlaceholderText("Enter bank name");
+
+    transferLayout->addWidget(new QLabel("Account Number:"));
+    transferLayout->addWidget(accountNumberEdit);
+    transferLayout->addWidget(new QLabel("Bank Name:"));
+    transferLayout->addWidget(bankNameEdit);
+
+    transferGroup->setVisible(false); // Initially hidden
 
     // Buttons
     QHBoxLayout *buttonLayout = new QHBoxLayout();
-    payButton = new QPushButton("Confirm Payment");
-    cancelButton = new QPushButton("Cancel");
-
-    QString buttonStyle =
-        "QPushButton {"
-        "   padding: 10px 25px;"
-        "   border-radius: 5px;"
-        "   font-weight: bold;"
-        "}"
-        "QPushButton:hover { opacity: 0.9; }";
-
-    payButton->setStyleSheet(buttonStyle + "background-color: #4CAF50; color: white;");
-    cancelButton->setStyleSheet(buttonStyle + "background-color: #5A5F73; color: white;");
+    QPushButton *payButton = new QPushButton("Confirm Payment");
+    QPushButton *cancelButton = new QPushButton("Cancel");
 
     buttonLayout->addStretch();
     buttonLayout->addWidget(cancelButton);
@@ -155,23 +108,24 @@ void PaymentDialog::setupPaymentSection() {
     paymentLayout->addWidget(methodLabel);
     paymentLayout->addWidget(paymentMethodCombo);
     paymentLayout->addWidget(cardGroup);
-    paymentLayout->addWidget(accountNumberEdit);
+    paymentLayout->addWidget(transferGroup);
     paymentLayout->addStretch();
     paymentLayout->addLayout(buttonLayout);
 
+    mainLayout->addWidget(paymentSection, 60);  // 60% width
+
     // Connections
-    connect(paymentMethodCombo, &QComboBox::currentTextChanged, this, &PaymentDialog::updatePaymentFields);
+    connect(paymentMethodCombo, &QComboBox::currentTextChanged, this, [cardGroup, transferGroup](const QString& text) {
+        bool isCard = text.contains("Card");
+        cardGroup->setVisible(isCard);
+        transferGroup->setVisible(!isCard);
+    });
+
     connect(payButton, &QPushButton::clicked, this, &PaymentDialog::processPayment);
     connect(cancelButton, &QPushButton::clicked, this, &QDialog::reject);
 }
 
-void PaymentDialog::updatePaymentFields() {
-    bool isCard = paymentMethodCombo->currentText().contains("Card");
-    dynamic_cast<QGroupBox*>(cardNumberEdit->parentWidget())->setVisible(isCard);
-    accountNumberEdit->setVisible(!isCard);
-}
-
 void PaymentDialog::processPayment() {
-    // Add validation logic here
+    // Aquí puedes agregar la lógica de validación de los datos de pago
     accept();
 }

@@ -1,8 +1,7 @@
-// flowlayout.cpp
 #include "flowlayout.h"
-#include <QWidget>   // Añadir
-#include <QStyle>    // Añadir
-#include <QMargins>  // Añadir
+#include <QWidget>
+#include <QStyle>
+#include <QMargins>
 
 FlowLayout::FlowLayout(QWidget *parent, int margin, int hSpacing, int vSpacing)
     : QLayout(parent), m_hSpace(hSpacing), m_vSpace(vSpacing) {

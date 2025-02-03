@@ -44,7 +44,8 @@ MainWindow::MainWindow(QWidget *parent)
     /* --- CollapsibleSideBar --- */
 
     // Instanciar nuestro sidebar colapsable
-    CollapsibleSidebar *sidebar = new CollapsibleSidebar(centralWidget, 100, 15);
+    CollapsibleSidebar *sidebar = new CollapsibleSidebar(centralWidget, 120, 15);
+
 
     // Agregar algunos botones de ejemplo al sidebar
 
@@ -55,47 +56,100 @@ MainWindow::MainWindow(QWidget *parent)
     for (int i = 0; i < ProductCategory.rowCount(); ++i) {
         QSqlRecord record = ProductCategory.record(i);
 
+        // Crear el botón
         QToolButton *btnInicio = new QToolButton;
-
-        btnInicio->setIcon(QIcon(":/icons/manzana.png"));
-        btnInicio->setText(record.value("name").toString());
-        btnInicio->setIconSize(QSize(60, 60));
-        btnInicio->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
         btnInicio->setCheckable(true);
 
+        // Crear un layout vertical (QVBoxLayout) para organizar el icono y el texto
+        QVBoxLayout *layout = new QVBoxLayout;
+        layout->setAlignment(Qt::AlignCenter);  // Asegura que los elementos estén centrados
+
+        // Crear un widget contenedor para el layout
+        QWidget *container = new QWidget;
+        container->setLayout(layout);
+
+        // Agregar el icono y el texto al layout
+        QLabel *iconLabel = new QLabel;
+        iconLabel->setPixmap(QIcon(":/icons/manzana.png").pixmap(61, 61));  // Usar un QLabel para el icono
+        layout->addWidget(iconLabel);
+
+        QLabel *textLabel = new QLabel(record.value("name").toString());
+        textLabel->setAlignment(Qt::AlignCenter);  // Asegura que el texto esté centrado
+        layout->addWidget(textLabel);
+
+        // Establecer el contenedor como widget del botón
+        btnInicio->setLayout(layout);
+
         // Hacer que el botón ocupe todo el espacio disponible
-        btnInicio->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        btnInicio->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
         // Agregar el botón al sidebar
         sidebar->addWidget(btnInicio);
     }
 
 
+
     /* --- ProductContainer (Panel de productos) --- */
 
-    // Panel que contendrá las tarjetas de productos
-    QFrame *panel = new QFrame();
-    panel->setStyleSheet("background-color: #f0f0f0; padding: 10px;");
+    // Panel principal que contendrá los botones y las tarjetas
+    QWidget *panel = new QWidget();
+    panel->setStyleSheet("background-color: #454b5a;");
+
     panel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    FlowLayout *flowLayout = new FlowLayout(panel, 10, 50, 10); // Márgenes y espaciado
-    flowLayout->setContentsMargins(10, 10, 10, 10);
-    flowLayout->setAlignment(Qt::AlignCenter);
+    // Layout principal del panel (vertical)
+    QVBoxLayout *panelLayout = new QVBoxLayout(panel);
+    panelLayout->setContentsMargins(10, 10, 10, 10);
+    panelLayout->setSpacing(15);
 
+    // --- Sección de botones ---
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->setAlignment(Qt::AlignRight);
 
-    // Agregar varias tarjetas de productos
+    QPushButton *btnFiltrar = new QPushButton("Filtrar");
+    QPushButton *btnOrdenar = new QPushButton("Ordenar");
+
+    // Estilo para los botones
+    QString buttonStyle =
+        "QPushButton {"
+        "   background-color: #4CAF50;"
+        "   color: white;"
+        "   border: none;"
+        "   padding: 8px 16px;"
+        "   border-radius: 4px;"
+        "}"
+        "QPushButton:hover { background-color: #45a049; }";
+
+    btnFiltrar->setStyleSheet(buttonStyle);
+    btnOrdenar->setStyleSheet(buttonStyle);
+
+    buttonLayout->addWidget(btnFiltrar);
+    buttonLayout->addWidget(btnOrdenar);
+
+    // Agregar botones al panel
+    panelLayout->addLayout(buttonLayout);
+
+    // --- Contenedor de tarjetas ---
+    QWidget *cardsContainer = new QWidget();
+    cardsContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    FlowLayout *flowLayout = new FlowLayout(cardsContainer, 10, 15, 10);
+    flowLayout->setContentsMargins(0, 0, 0, 0);  // Eliminar márgenes internos
+
+    // Agregar tarjetas
     flowLayout->addWidget(new ProductCard("Producto 1", 100.00));
     flowLayout->addWidget(new ProductCard("Producto 2", 200.00));
-    flowLayout->addWidget(new ProductCard("Producto 3", 150.00));
     flowLayout->addWidget(new ProductCard("Producto 1", 100.00));
     flowLayout->addWidget(new ProductCard("Producto 2", 200.00));
-    flowLayout->addWidget(new ProductCard("Producto 3", 150.00));
     flowLayout->addWidget(new ProductCard("Producto 1", 100.00));
     flowLayout->addWidget(new ProductCard("Producto 2", 200.00));
-    flowLayout->addWidget(new ProductCard("Producto 3", 150.00));
+    flowLayout->addWidget(new ProductCard("Producto 1", 100.00));
+    flowLayout->addWidget(new ProductCard("Producto 2", 200.00));
 
+    // Agregar contenedor de tarjetas al panel
+    panelLayout->addWidget(cardsContainer);
 
-    // Hacer que el panel sea desplazable si hay muchas tarjetas
+    // Configurar el área de scroll
     QScrollArea *scrollArea = new QScrollArea;
     scrollArea->setWidget(panel);
     scrollArea->setWidgetResizable(true);

@@ -3,7 +3,7 @@
 ProductCard::ProductCard(const QString& productName, double price, QWidget *parent)
     : QFrame(parent) {
     setFrameShape(QFrame::Box);
-    setStyleSheet("background-color: white; border-radius: 10px; padding: 10px; margin: 5px;");
+    setStyleSheet("background-color: #363c4b; border-radius: 10px; padding: 10px; margin: 5px;");
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     setMaximumSize(250, 350); // Tamaño mínimo sugerido
 
@@ -11,7 +11,7 @@ ProductCard::ProductCard(const QString& productName, double price, QWidget *pare
     QVBoxLayout* layout = new QVBoxLayout(this);
     layout->setContentsMargins(5, 5, 5, 5);
 
-    QLabel* nameLabel = new QLabel(QString("<b>%1</b>").arg(productName));
+    QLabel* nameLabel = new QLabel(QString("<h1>%1</h1>").arg(productName));
     nameLabel->setAlignment(Qt::AlignCenter);
 
     QLabel* priceLabel = new QLabel(QString("$%1").arg(price, 0, 'f', 2));

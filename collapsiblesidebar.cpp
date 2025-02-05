@@ -61,7 +61,7 @@ void CollapsibleSidebar::addCategoryButton(QString categoryLabel, QIcon category
     categoryButton->setLayout(buttonLayout);
 
     // Hacer que el botón ocupe todo el espacio disponible
-    categoryButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    categoryButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
 
     // Agregar el botón al sidebar
     addWidget(categoryButton);

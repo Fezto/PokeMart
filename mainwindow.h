@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QPushButton>
 
 QT_BEGIN_NAMESPACE
 class MainWindow;
@@ -15,5 +16,11 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void updateButtons(); // Función para actualizar los botones
+
+private:
+    QPushButton *btnLogin;
+    QPushButton *btnRegister;
+    QPushButton *btnLogout;
 };
 #endif // MAINWINDOW_H

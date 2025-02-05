@@ -10,43 +10,47 @@
 #include <QDateEdit>
 #include <QPushButton>
 #include <QGroupBox>
+#include <QString>
 
 class PaymentDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit PaymentDialog(const QString& productName,
+    explicit PaymentDialog(const QString &productName,
                            double price,
-                           const QString& imagePath,
+                           const QString &imagePath,
                            QWidget *parent = nullptr);
+
+private slots:
+    void processPayment();
 
 private:
     void setupUI();
-    void setupProductSection();
-    void setupPaymentSection();
-    void updatePaymentFields();
-    void processPayment();
 
-    // Product Section
-    QWidget *productSection;
-    QLabel *productImage;
-    QLabel *productNameLabel;
-    QLabel *productPriceLabel;
+    // Sección de Producto
+    QWidget   *productSection;
+    QLabel    *productImage;
+    QLabel    *productNameLabel;
+    QLabel    *productPriceLabel;
 
-    // Payment Section
-    QWidget *paymentSection;
+    // Sección de Pago
+    QWidget   *paymentSection;
     QComboBox *paymentMethodCombo;
+    QGroupBox *cardGroup;
     QLineEdit *cardNumberEdit;
     QLineEdit *cvvEdit;
     QDateEdit *expirationDateEdit;
+    QGroupBox *transferGroup;
     QLineEdit *accountNumberEdit;
+    QLineEdit *transferPasswordEdit;
 
     QPushButton *payButton;
     QPushButton *cancelButton;
 
+    // Datos del producto actual
     QString currentProductImage;
     QString currentProductName;
-    double currentProductPrice;
+    double  currentProductPrice;
 };
 
 #endif // PAYMENTDIALOG_H

@@ -71,7 +71,8 @@ QGroupBox QLineEdit, QGroupBox QDateEdit, QGroupBox QComboBox, QGroupBox QPushBu
     padding-right: 8px;
 }
 
-/* Estilo del panel y el producto */
+/* --- Widget-specific styles --- */
+
 QWidget#panel {
     background-color: #454b5a;
 }

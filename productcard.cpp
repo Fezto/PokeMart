@@ -32,7 +32,5 @@ ProductCard::ProductCard(const QString& productName, double price, QWidget *pare
 
 void ProductCard::openPaymentDialog() {
     PaymentDialog paymentDialog(productName, price, ":/icons/manzana.png", this);
-    if (paymentDialog.exec() == QDialog::Accepted) {
-        // Aquí podrías agregar la lógica de compra confirmada
-    }
+    paymentDialog.exec();
 }

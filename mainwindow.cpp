@@ -4,6 +4,7 @@
 #include "flowlayout.h"
 #include "logindialog.h"
 #include "databasemanager.h"
+#include "sessionmanager.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -32,12 +33,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     CollapsibleSidebar *sidebar = new CollapsibleSidebar(centralWidget, 120, 15);
 
-    QSqlTableModel ProductCategory;
-    ProductCategory.setTable("Product_Category");
-    ProductCategory.select();
+    QSqlTableModel productCategory;
+    productCategory.setTable("Product_Category");
+    productCategory.select();
 
-    for (int i = 0; i < ProductCategory.rowCount(); ++i) {
-        QSqlRecord record = ProductCategory.record(i);
+    for (int i = 0; i < productCategory.rowCount(); ++i) {
+        QSqlRecord record = productCategory.record(i);
         QString categoryName = record.value("name").toString();
         QIcon categoryIcon = QIcon(":/icons/manzana.png");
         sidebar->addCategoryButton(categoryName, categoryIcon, QSize(61, 61));
@@ -60,23 +61,38 @@ MainWindow::MainWindow(QWidget *parent)
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->setAlignment(Qt::AlignRight);
 
-    QPushButton *btnLogin = new QPushButton("Login");
-    QPushButton *btnRegister = new QPushButton("Register");
+    // Crear botones
+    btnLogin = new QPushButton("Login");
+    btnRegister = new QPushButton("Register");
+    btnLogout = new QPushButton("Logout");
 
-    // Estilo oscuro con bordes sutiles y efectos al pasar el mouse
-
+    // Agregar botones
     buttonLayout->addWidget(btnLogin);
     buttonLayout->addWidget(btnRegister);
+    buttonLayout->addWidget(btnLogout);
 
-    connect(btnLogin, &QPushButton::clicked, this, [this](){
+    // Conectar el botón de login
+    connect(btnLogin, &QPushButton::clicked, this, [this]() {
         LoginDialog dialog(this);
         if (dialog.exec() == QDialog::Accepted) {
             qDebug() << "Login successful!";
+            updateButtons(); // Actualizar UI después de login
         }
     });
 
-    // Agregar botones al panel
+    // Conectar el botón de logout
+    connect(btnLogout, &QPushButton::clicked, this, [this]() {
+        SessionManager::instance().logout();
+        qDebug() << "User logged out!";
+        updateButtons(); // Actualizar UI después de logout
+    });
+
+    // Agregar layout de botones al panel
     panelLayout->addLayout(buttonLayout);
+
+    // Ocultar o mostrar botones al inicio
+    updateButtons();
+
 
 
     // --- Contenedor de tarjetas ---
@@ -86,15 +102,17 @@ MainWindow::MainWindow(QWidget *parent)
     FlowLayout *flowLayout = new FlowLayout(cardsContainer, 10, 15, 10);
     flowLayout->setContentsMargins(0, 0, 0, 0);  // Eliminar márgenes internos
 
-    // Agregar tarjetas
-    flowLayout->addWidget(new ProductCard("Producto 1", 100.00));
-    flowLayout->addWidget(new ProductCard("Producto 2", 200.00));
-    flowLayout->addWidget(new ProductCard("Producto 1", 100.00));
-    flowLayout->addWidget(new ProductCard("Producto 2", 200.00));
-    flowLayout->addWidget(new ProductCard("Producto 1", 100.00));
-    flowLayout->addWidget(new ProductCard("Producto 2", 200.00));
-    flowLayout->addWidget(new ProductCard("Producto 1", 100.00));
-    flowLayout->addWidget(new ProductCard("Producto 2", 200.00));
+
+    QSqlTableModel product;
+    product.setTable("Product");
+    product.select();
+
+    for (int i = 0; i < product.rowCount(); ++i) {
+        QSqlRecord record = product.record(i);
+        QString productName = record.value("name").toString();
+        double price = record.value("price").toDouble();
+        flowLayout->addWidget(new ProductCard(productName, price));
+    }
 
     // Agregar contenedor de tarjetas al panel
     panelLayout->addWidget(cardsContainer);
@@ -112,6 +130,21 @@ MainWindow::MainWindow(QWidget *parent)
     mainLayout->addWidget(sidebar);
     mainLayout->addWidget(scrollArea);
 }
+
+void MainWindow::updateButtons() {
+    bool loggedIn = SessionManager::instance().isUserLoggedIn();
+
+    if (loggedIn) {
+        btnLogin->hide();
+        btnRegister->hide();
+        btnLogout->show();
+    } else {
+        btnLogin->show();
+        btnRegister->show();
+        btnLogout->hide();
+    }
+}
+
 
 MainWindow::~MainWindow()
 {

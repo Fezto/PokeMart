@@ -9,7 +9,7 @@ DatabaseManager& DatabaseManager::instance() {
 DatabaseManager::DatabaseManager() {
     db = QSqlDatabase::addDatabase("QMYSQL");
     db.setHostName("localhost");
-    db.setDatabaseName("pokemart");
+    db.setDatabaseName("pokemart3");
     db.setUserName("root");
     db.setPassword("Spongebob400!");
 }

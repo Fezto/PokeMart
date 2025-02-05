@@ -20,6 +20,7 @@ qt_add_executable(Prueba2
     logindialog.h logindialog.cpp
     databasemanager.h databasemanager.cpp
     paymentdialog.h paymentdialog.cpp
+    sessionmanager.h sessionmanager.cpp
 
 )
 

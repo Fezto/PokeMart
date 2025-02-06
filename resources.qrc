@@ -3,5 +3,25 @@
         <file>icons/manzana.png</file>
         <file>icons/pina.png</file>
         <file>styles/style.qss</file>
+        <file>icons/potion.png</file>
+        <file>icons/full_restore.png</file>
+        <file>icons/great_ball.png</file>
+        <file>icons/hyper_potion.png</file>
+        <file>icons/lum_berry.png</file>
+        <file>icons/master_ball.png</file>
+        <file>icons/max_potion.png</file>
+        <file>icons/oran_berry.png</file>
+        <file>icons/poke_ball.png</file>
+        <file>icons/premier_ball.png</file>
+        <file>icons/sitrus_berry.png</file>
+        <file>icons/super_potion.png</file>
+        <file>icons/tm_electric.png</file>
+        <file>icons/tm_fire.png</file>
+        <file>icons/ultra_ball.png</file>
+        <file>icons/x_special.png</file>
+        <file>icons/x_accuracy.png</file>
+        <file>icons/x_attack.png</file>
+        <file>icons/x_defense.png</file>
+        <file>icons/x_speed.png</file>
     </qresource>
 </RCC>

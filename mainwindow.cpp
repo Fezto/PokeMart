@@ -110,8 +110,9 @@ MainWindow::MainWindow(QWidget *parent)
     for (int i = 0; i < product.rowCount(); ++i) {
         QSqlRecord record = product.record(i);
         QString productName = record.value("name").toString();
+        QString imagePath = QString(":/icons/%1").arg(record.value("image").toString());
         double price = record.value("price").toDouble();
-        flowLayout->addWidget(new ProductCard(productName, price));
+        flowLayout->addWidget(new ProductCard(productName, imagePath, price));
     }
 
     // Agregar contenedor de tarjetas al panel

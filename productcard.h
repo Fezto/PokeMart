@@ -5,13 +5,12 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QPushButton>
-#include "paymentdialog.h"
 
 class ProductCard : public QFrame {
     Q_OBJECT
 
 public:
-    explicit ProductCard(const QString& productName, double price, QWidget *parent = nullptr);
+    explicit ProductCard(const QString& productName, const QString imagePath, double price, QWidget *parent = nullptr);
 
 private slots:
     void openPaymentDialog();

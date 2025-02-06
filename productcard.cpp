@@ -1,6 +1,8 @@
 #include "productcard.h"
+#include "paymentdialog.h"
+#include <QDebug>
 
-ProductCard::ProductCard(const QString& productName, double price, QWidget *parent)
+ProductCard::ProductCard(const QString& productName, const QString imagePath, double price, QWidget *parent)
     : QFrame(parent), productName(productName), price(price) {
     setFrameShape(QFrame::Box);
     setObjectName("productCard");
@@ -17,8 +19,16 @@ ProductCard::ProductCard(const QString& productName, double price, QWidget *pare
     priceLabel->setAlignment(Qt::AlignCenter);
 
     QLabel* productImage = new QLabel();
-    productImage->setPixmap(QPixmap(":/icons/manzana.png").scaled(150, 150, Qt::KeepAspectRatio));
-    productImage->setScaledContents(true);
+
+    // Cargar la imagen correctamente
+    QPixmap pixmap(imagePath);
+    if (pixmap.isNull()) {
+        qDebug() << "Error: No se pudo cargar la imagen desde:" << imagePath;
+    } else {
+        qDebug() << "Imagen cargada correctamente desde:" << imagePath;
+    }
+    productImage->setPixmap(pixmap.scaled(150, 150, Qt::KeepAspectRatio, Qt::FastTransformation));
+    productImage->setScaledContents(false);
     productImage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     buyButton = new QPushButton("Buy");
@@ -31,6 +41,6 @@ ProductCard::ProductCard(const QString& productName, double price, QWidget *pare
 }
 
 void ProductCard::openPaymentDialog() {
-    PaymentDialog paymentDialog(productName, price, ":/icons/manzana.png", this);
+    PaymentDialog paymentDialog(productName, price, ":/icons/potion.png", this);
     paymentDialog.exec();
 }

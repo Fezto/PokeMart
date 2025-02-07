@@ -28,7 +28,7 @@ Ensure you have the following installed on your system:
 
 ### The easy way
 
-Just install the executable available on the Releases page of this repository. For the moment, only the Windows installer is available.
+Just install the executable available on the Releases page of this repository. For the moment, only the Windows installer is available, which should deploy the executable binary in this path C:\Program Files\Prueba2 0.1.1\bin
 
 ### The hard way
 

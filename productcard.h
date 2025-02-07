@@ -18,6 +18,7 @@ private slots:
 private:
     QString productName;
     double price;
+    QString imagePath;
     QPushButton* buyButton;
 };
 

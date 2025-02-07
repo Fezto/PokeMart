@@ -258,7 +258,7 @@ void PaymentDialog::processPayment() {
             "  status_id, product_id, attempts"
             ") VALUES ("
             "  (SELECT id FROM Payment_Method WHERE name = :method),"
-            "  :account_id, NOW(),"
+            "  :account_id, datetime('now'),"
             "  (SELECT id FROM Status WHERE name = 'Exitoso'),"
             "  (SELECT id FROM Product WHERE name = :product_name),"
             "  :attempts"
@@ -278,17 +278,17 @@ void PaymentDialog::processPayment() {
             "INSERT INTO Invoices ("
             "  payment_id, issue_date, status_id"
             ") VALUES ("
-            "  :payment_id, NOW(),"
-            "  (SELECT id FROM Status WHERE name = 'exitoso')"
+            "  :payment_id, datetime('now'),"
+            "  (SELECT id FROM Status WHERE name = 'Exitoso')"
             ")"
             );
         invoiceQuery.bindValue(":payment_id", paymentQuery.lastInsertId());
         if (!invoiceQuery.exec()) {
             throw std::runtime_error("Error al generar factura");
         }
-
-        db.commit();
         paymentAuthorized = true;
+        qDebug() << paymentAuthorized;
+        db.commit();
     }
     catch (const std::exception &e) {
         db.rollback();
@@ -303,7 +303,7 @@ void PaymentDialog::processPayment() {
                 "  status_id, product_id, attempts"
                 ") VALUES ("
                 "  (SELECT id FROM Payment_Method WHERE name = :method),"
-                "  :account_id, NOW(),"
+                "  :account_id, datetime('now'),"
                 "  (SELECT id FROM Status WHERE name = 'fallido'),"
                 "  (SELECT id FROM Product WHERE name = :product_name),"
                 "  :attempts"

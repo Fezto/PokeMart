@@ -3,7 +3,7 @@
 #include <QDebug>
 
 ProductCard::ProductCard(const QString& productName, const QString imagePath, double price, QWidget *parent)
-    : QFrame(parent), productName(productName), price(price) {
+    : QFrame(parent), productName(productName), price(price), imagePath(imagePath) {
     setFrameShape(QFrame::Box);
     setObjectName("productCard");
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -41,6 +41,6 @@ ProductCard::ProductCard(const QString& productName, const QString imagePath, do
 }
 
 void ProductCard::openPaymentDialog() {
-    PaymentDialog paymentDialog(productName, price, ":/icons/potion.png", this);
+    PaymentDialog paymentDialog(productName, price, imagePath, this);
     paymentDialog.exec();
 }

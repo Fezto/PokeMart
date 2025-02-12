@@ -106,7 +106,12 @@ PaymentDialog::PaymentDialog(const QString &productName,
     // Buttons
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     payButton = new QPushButton("Confirm Payment");
+    payButton->setAutoDefault(true);
+    payButton->setDefault(true);
+    payButton->setFocus();
     cancelButton = new QPushButton("Cancel");
+    cancelButton->setAutoDefault(false);
+    cancelButton->setDefault(false);
 
     buttonLayout->addStretch();
     buttonLayout->addWidget(cancelButton);
@@ -143,7 +148,7 @@ void PaymentDialog::processPayment() {
     int userId = SessionManager::instance().getUserId();
     qDebug() << userId;
     if (userId == -1) {
-        QMessageBox::critical(this, "Error", "Usuario no autenticado.");
+        QMessageBox::critical(this, "Error", "User not authenticated.");
         return;
     }
 
@@ -151,12 +156,12 @@ void PaymentDialog::processPayment() {
     db.transaction();
 
     try {
-        if(paymentMethod.contains("Card")) {
+        if (paymentMethod.contains("Card")) {
             QString cardNumber = cardNumberEdit->text().remove(" ");
             QString cvv = cvvEdit->text();
             QDate expiration = expirationDateEdit->date();
 
-            // Validación de tarjeta
+            // Validar tarjeta y obtener datos de la cuenta
             QSqlQuery cardQuery(db);
             cardQuery.prepare(
                 "SELECT c.verified, c.expiration, c.cvv, a.id, a.verified, a.money "
@@ -168,27 +173,38 @@ void PaymentDialog::processPayment() {
             cardQuery.bindValue(":user_id", userId);
 
             if (!cardQuery.exec() || !cardQuery.next()) {
-                throw std::runtime_error("Tarjeta no encontrada o no pertenece al usuario");
+                throw std::runtime_error("Card not found or does not belong to the user");
             }
             if (!cardQuery.value(0).toBool()) {
-                throw std::runtime_error("Tarjeta no verificada");
+                throw std::runtime_error("Card not verified");
             }
             if (cardQuery.value(1).toDate() < QDate::currentDate()) {
-                throw std::runtime_error("Tarjeta expirada");
+                throw std::runtime_error("Card expired");
             }
             if (cardQuery.value(2).toString() != cvv) {
-                throw std::runtime_error("CVV incorrecto");
+                throw std::runtime_error("Incorrect CVV");
             }
-            if (cardQuery.value(5).toDouble() < currentProductPrice) {
-                throw std::runtime_error("Fondos insuficientes");
+            // Validar si la cuenta tiene fondos suficientes
+            double currentFunds = cardQuery.value(5).toDouble();
+            if (currentFunds < currentProductPrice) {
+                throw std::runtime_error("Insufficient funds");
             }
             accountId = cardQuery.value(3).toInt();
+
+            // Sustraer fondos para pagos con tarjeta
+            QSqlQuery updateFunds(db);
+            updateFunds.prepare("UPDATE Account SET money = money - :amount WHERE id = :account_id");
+            updateFunds.bindValue(":amount", currentProductPrice);
+            updateFunds.bindValue(":account_id", accountId);
+            if (!updateFunds.exec()) {
+                throw std::runtime_error("Error updating funds");
+            }
         }
-        else if(paymentMethod.contains("Bank Transfer")) {
+        else if (paymentMethod.contains("Bank Transfer")) {
             QString accountNumber = accountNumberEdit->text();
             QString transferPassword = transferPasswordEdit->text();
 
-            // Validación de cuenta
+            // Validar cuenta
             QSqlQuery accountQuery(db);
             accountQuery.prepare(
                 "SELECT a.id, a.money, a.verified "
@@ -199,10 +215,10 @@ void PaymentDialog::processPayment() {
             accountQuery.bindValue(":user_id", userId);
 
             if (!accountQuery.exec() || !accountQuery.next()) {
-                throw std::runtime_error("Cuenta no encontrada o no pertenece al usuario");
+                throw std::runtime_error("Account not found or does not belong to the user");
             }
             if (!accountQuery.value(2).toBool()) {
-                throw std::runtime_error("Cuenta no verificada");
+                throw std::runtime_error("Account not verified");
             }
             // Validar contraseña de transferencia
             QSqlQuery transferQuery(db);
@@ -213,15 +229,25 @@ void PaymentDialog::processPayment() {
             transferQuery.bindValue(":account_id", accountQuery.value(0).toInt());
             transferQuery.bindValue(":password", transferPassword);
             if (!transferQuery.exec() || !transferQuery.next()) {
-                throw std::runtime_error("Contraseña de transferencia incorrecta");
+                throw std::runtime_error("Incorrect transfer password");
             }
-            if (accountQuery.value(1).toDouble() < currentProductPrice) {
-                throw std::runtime_error("Fondos insuficientes");
+            double currentFunds = accountQuery.value(1).toDouble();
+            if (currentFunds < currentProductPrice) {
+                throw std::runtime_error("Insufficient funds");
             }
             accountId = accountQuery.value(0).toInt();
+
+            // Sustraer fondos para transferencias
+            QSqlQuery updateFunds(db);
+            updateFunds.prepare("UPDATE Account SET money = money - :amount WHERE id = :account_id");
+            updateFunds.bindValue(":amount", currentProductPrice);
+            updateFunds.bindValue(":account_id", accountId);
+            if (!updateFunds.exec()) {
+                throw std::runtime_error("Error updating funds");
+            }
         }
 
-        // Validar intentos previos
+        // Validar intentos previos (limitar a 3 intentos)
         QSqlQuery attemptsQuery(db);
         attemptsQuery.prepare(
             "SELECT attempts FROM Payments "
@@ -232,21 +258,7 @@ void PaymentDialog::processPayment() {
         if (attemptsQuery.exec() && attemptsQuery.next()) {
             paymentAttempts = attemptsQuery.value(0).toInt();
             if (paymentAttempts >= 3) {
-                throw std::runtime_error("Límite de intentos excedido");
-            }
-        }
-
-        // Actualizar fondos en caso de transferencia
-        if(paymentMethod.contains("Bank Transfer")) {
-            QSqlQuery updateFunds(db);
-            updateFunds.prepare(
-                "UPDATE Account SET money = money - :amount "
-                "WHERE id = :account_id"
-                );
-            updateFunds.bindValue(":amount", currentProductPrice);
-            updateFunds.bindValue(":account_id", accountId);
-            if (!updateFunds.exec()) {
-                throw std::runtime_error("Error al actualizar fondos");
+                throw std::runtime_error("Attempt limit exceeded");
             }
         }
 
@@ -259,17 +271,17 @@ void PaymentDialog::processPayment() {
             ") VALUES ("
             "  (SELECT id FROM Payment_Method WHERE name = :method),"
             "  :account_id, datetime('now'),"
-            "  (SELECT id FROM Status WHERE name = 'Exitoso'),"
+            "  (SELECT id FROM Status WHERE name = 'Success'),"
             "  (SELECT id FROM Product WHERE name = :product_name),"
             "  :attempts"
             ")"
             );
-        paymentQuery.bindValue(":method", paymentMethod.contains("Card") ? "Tarjeta" : "Transferencia");
+        paymentQuery.bindValue(":method", paymentMethod.contains("Card") ? "Card" : "Transference");
         paymentQuery.bindValue(":account_id", accountId);
         paymentQuery.bindValue(":product_name", currentProductName);
         paymentQuery.bindValue(":attempts", ++paymentAttempts);
         if (!paymentQuery.exec()) {
-            throw std::runtime_error("Error al registrar el pago");
+            throw std::runtime_error("Error registering payment");
         }
 
         // Crear factura
@@ -279,12 +291,12 @@ void PaymentDialog::processPayment() {
             "  payment_id, issue_date, status_id"
             ") VALUES ("
             "  :payment_id, datetime('now'),"
-            "  (SELECT id FROM Status WHERE name = 'Exitoso')"
+            "  (SELECT id FROM Status WHERE name = 'Success')"
             ")"
             );
         invoiceQuery.bindValue(":payment_id", paymentQuery.lastInsertId());
         if (!invoiceQuery.exec()) {
-            throw std::runtime_error("Error al generar factura");
+            throw std::runtime_error("Error generating invoice");
         }
         paymentAuthorized = true;
         qDebug() << paymentAuthorized;
@@ -304,12 +316,12 @@ void PaymentDialog::processPayment() {
                 ") VALUES ("
                 "  (SELECT id FROM Payment_Method WHERE name = :method),"
                 "  :account_id, datetime('now'),"
-                "  (SELECT id FROM Status WHERE name = 'fallido'),"
+                "  (SELECT id FROM Status WHERE name = 'Failure'),"
                 "  (SELECT id FROM Product WHERE name = :product_name),"
                 "  :attempts"
                 ")"
                 );
-            failQuery.bindValue(":method", paymentMethod.contains("Card") ? "Tarjeta" : "Transferencia");
+            failQuery.bindValue(":method", paymentMethod.contains("Card") ? "Card" : "Transference");
             failQuery.bindValue(":account_id", accountId);
             failQuery.bindValue(":product_name", currentProductName);
             failQuery.bindValue(":attempts", ++paymentAttempts);
@@ -318,9 +330,10 @@ void PaymentDialog::processPayment() {
     }
 
     if (paymentAuthorized) {
-        QMessageBox::information(this, "Pago", "Pago autorizado con éxito");
+        QMessageBox::information(this, "Payment", "Payment successfully authorized");
         accept();
     } else {
-        QMessageBox::critical(this, "Error", QString("Pago no autorizado: %1").arg(errorMessage));
+        QMessageBox::critical(this, "Error", QString("Payment not authorized: %1").arg(errorMessage));
     }
 }
+

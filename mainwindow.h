@@ -20,7 +20,7 @@ public:
 
 private:
     QPushButton *btnLogin;
-    QPushButton *btnRegister;
+    QPushButton *btnCheck;
     QPushButton *btnLogout;
 };
 #endif // MAINWINDOW_H

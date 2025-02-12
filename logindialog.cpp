@@ -27,7 +27,6 @@ LoginDialog::LoginDialog(QWidget *parent)
 
     loginButton = new QPushButton("Login");
 
-
     layout->addWidget(labelEmail);
     layout->addWidget(emailField);
     layout->addWidget(labelPass);
@@ -57,12 +56,12 @@ void LoginDialog::handleLogin() {
         int userId = query.value("id").toInt();
         QString email = query.value("email").toString();
 
-        // Guardar en sesión
+        // Save session
         SessionManager::instance().login(userId, email);
 
-        QMessageBox::information(this, "Login exitoso", "¡Bienvenido! Has iniciado sesión correctamente.");
+        QMessageBox::information(this, "Login Successful", "Welcome! You have successfully logged in.");
         accept();
     } else {
-        QMessageBox::critical(this, "Error", "Email o contraseña incorrectos. Inténtalo de nuevo.");
+        QMessageBox::critical(this, "Error", "Incorrect email or password. Please try again.");
     }
 }

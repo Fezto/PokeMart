@@ -21,6 +21,7 @@ qt_add_executable(Pokemart
     databasemanager.h databasemanager.cpp
     paymentdialog.h paymentdialog.cpp
     sessionmanager.h sessionmanager.cpp
+    paymenttable.h paymenttable.cpp
 )
 
 target_link_libraries(Pokemart
@@ -59,3 +60,14 @@ qt_generate_deploy_app_script(
     NO_UNSUPPORTED_PLATFORM_ERROR
 )
 install(SCRIPT ${deploy_script})
+
+# Información del paquete
+set(CPACK_PACKAGE_NAME "Pokemart")
+set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_PACKAGE_CONTACT "122043099@upq.edu.mx")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Buy and buy again your favorite Pokémon products.")
+set(CPACK_PACKAGE_VENDOR "UPQ")
+
+# Configuración de CP**ack**
+set(CPACK_GENERATOR "NSIS")
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-win64")

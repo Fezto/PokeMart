@@ -5,6 +5,7 @@
 #include "logindialog.h"
 #include "databasemanager.h"
 #include "sessionmanager.h"
+#include "paymenttable.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -24,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Crear widget central y asignarlo
     QWidget *centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
+    setMinimumSize(800,600);
 
     /* --- Database connection --- */
     DatabaseManager::instance().connect();
@@ -63,13 +65,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Crear botones
     btnLogin = new QPushButton("Login");
-    btnRegister = new QPushButton("Register");
     btnLogout = new QPushButton("Logout");
+    btnCheck = new QPushButton("Check Payments");
 
     // Agregar botones
     buttonLayout->addWidget(btnLogin);
-    buttonLayout->addWidget(btnRegister);
     buttonLayout->addWidget(btnLogout);
+    buttonLayout->addWidget(btnCheck);
 
     // Conectar el botón de login
     connect(btnLogin, &QPushButton::clicked, this, [this]() {
@@ -85,6 +87,11 @@ MainWindow::MainWindow(QWidget *parent)
         SessionManager::instance().logout();
         qDebug() << "User logged out!";
         updateButtons(); // Actualizar UI después de logout
+    });
+
+    connect(btnCheck, &QPushButton::clicked, this, [this]() {
+        PaymentTable *paymentTable = new PaymentTable();
+        paymentTable->exec();
     });
 
     // Agregar layout de botones al panel
@@ -137,11 +144,11 @@ void MainWindow::updateButtons() {
 
     if (loggedIn) {
         btnLogin->hide();
-        btnRegister->hide();
+        btnCheck->show();
         btnLogout->show();
     } else {
         btnLogin->show();
-        btnRegister->show();
+        btnCheck->hide();
         btnLogout->hide();
     }
 }
